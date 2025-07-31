@@ -17,7 +17,8 @@
           "launchMode": "most-recent"
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "@maplibre/maplibre-react-native"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -31,14 +32,27 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.padi142.hajzlfinder",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.padi142.hajzlfinder"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "17705275-ff69-4965-b833-ecaf06a06e89"
       }
     }
   }
