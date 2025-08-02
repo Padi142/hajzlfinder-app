@@ -14,7 +14,7 @@ export const hajzleTable = defineTable({
     upvotes: v.optional(v.number()),
 });
 
-export type hajzleType = Infer<typeof hajzleTable.validator>  ;
+export type hajzleType = Infer<typeof hajzleTable.validator>;
 
 export const accessCodesTable = defineTable({
     restroomId: v.id("hajzle"),

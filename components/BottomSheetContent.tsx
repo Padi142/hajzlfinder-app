@@ -68,9 +68,10 @@ export const BottomSheetContent = ({ hajzlId }: { hajzlId: Id<'hajzle'> | null }
                 scrollEnabled={true}
                 nestedScrollEnabled={false}
                 bounces={true}
-                contentContainerStyle={{ gap: 8 }}>
+                contentContainerStyle={{ gap: 8 }}
+                className="max-h-[400px] overflow-y-scroll">
                 {accessCodes.map((code) => (
-                  <View className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                  <View className="rounded-lg border border-gray-200 bg-gray-50 p-3" key={code._id}>
                     <View className="mb-2 flex-row items-center justify-between">
                       <Text className="font-mono text-lg font-bold text-gray-900">
                         {code.code ?? 'Neznámý kód'}

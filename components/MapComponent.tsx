@@ -1,36 +1,61 @@
-import { MapView, Camera, PointAnnotation } from '@maplibre/maplibre-react-native';
-import { View, Text } from 'react-native';
+import { Platform, View, Text } from 'react-native';
 import { Doc, Id } from '~/convex/_generated/dataModel';
-import { ToiletMarker } from './ToiletMarker';
+import { Suspense, lazy } from 'react';
+import * as Location from 'expo-location';
+
+// Dynamically import both components to avoid issues
+const MapComponentWeb = lazy(() =>
+  import('./MapComponentWeb').then((module) => ({ default: module.MapComponentWeb }))
+);
+
+const MapComponentMobile = lazy(() =>
+  import('./MapComponentMobile').then((module) => ({ default: module.MapComponentMobile }))
+);
 
 export const MapComponent = ({
   handlePresentModalPress,
   hajzle,
+  initialLocation,
 }: {
   handlePresentModalPress: (id: Id<'hajzle'>) => void;
   hajzle: Doc<'hajzle'>[] | undefined;
+  initialLocation: Location.LocationObject | null;
 }) => {
-  if (!hajzle)
+  if (Platform.OS === 'web') {
     return (
-      <View>
-        <Text>No hajzle</Text>
-      </View>
+      <Suspense
+        fallback={
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+            }}>
+            <p>Loading map...</p>
+          </div>
+        }>
+        <MapComponentWeb
+          handlePresentModalPress={handlePresentModalPress}
+          hajzle={hajzle}
+          initialLocation={initialLocation}
+        />
+      </Suspense>
     );
+  }
 
   return (
-    <MapView style={{ flex: 1 }} mapStyle={require('~/assets/map/map-light.json')}>
-      <Camera centerCoordinate={[16.60796, 49.19522]} zoomLevel={13} />
-      {hajzle.map((hajzl) => (
-        <PointAnnotation
-          onSelected={() => handlePresentModalPress(hajzl._id)}
-          key={hajzl._id}
-          id={hajzl._id}
-          coordinate={[hajzl.lng, hajzl.lat]}
-          title={hajzl.name}
-          snippet={hajzl.description}>
-          <ToiletMarker isSelected={false} />
-        </PointAnnotation>
-      ))}
-    </MapView>
+    <Suspense
+      fallback={
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>Loading map...</Text>
+        </View>
+      }>
+      <MapComponentMobile
+        handlePresentModalPress={handlePresentModalPress}
+        hajzle={hajzle}
+        initialLocation={initialLocation}
+      />
+    </Suspense>
   );
 };
