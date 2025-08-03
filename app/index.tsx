@@ -5,7 +5,7 @@ import { Container } from '~/components/Container';
 import { MapComponent } from '~/components/MapComponent';
 import { ScreenContent } from '~/components/ScreenContent';
 import { api } from '~/convex/_generated/api';
-import { useQuery } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
@@ -15,19 +15,36 @@ import {
   useBottomSheetTimingConfigs,
 } from '@gorhom/bottom-sheet';
 import { Easing } from 'react-native-reanimated';
-import { Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Id } from '~/convex/_generated/dataModel';
 import { BottomSheetContent } from '~/components/BottomSheetContent';
 
 import * as Location from 'expo-location';
 import Octicons from '@expo/vector-icons/Octicons';
+import { getOrSetRandomId } from '~/lib/utils';
 
 export default function Home() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [selectedHajzlId, setSelectedHajzlId] = useState<Id<'hajzle'> | null>(null);
+
+  const addVote = useMutation(api.hajzl.vote);
+  const voteRestroom = useMutation(api.hajzl.voteRestroom);
+  const reportRestroom = useMutation(api.hajzl.report);
+
+  const [isVoteLoading, setIsVoteLoading] = useState(false);
+  const [voteError, setVoteError] = useState<string | null>(null);
+  const [isRestroomVoteLoading, setIsRestroomVoteLoading] = useState(false);
+  const [restroomVoteError, setRestroomVoteError] = useState<string | null>(null);
+  const [isReporting, setIsReporting] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
+  const [reportSuccess, setReportSuccess] = useState(false);
+
+  const [reportReason, setReportReason] = useState('');
+  const [showReportForm, setShowReportForm] = useState(false);
 
   // Fast timing animation configuration
   const animationConfigs = useBottomSheetTimingConfigs({
@@ -44,6 +61,7 @@ export default function Home() {
 
   const getCurrentLocation = useCallback(async () => {
     async function getCurrentLocation() {
+      setIsLocationLoading(true);
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
@@ -55,9 +73,68 @@ export default function Home() {
       });
       setLocation(location);
       console.log('location', location);
+      setIsLocationLoading(false);
     }
     getCurrentLocation();
   }, []);
+
+  const handleVote = async (codeId: Id<'accessCodes'>, isUpvote: boolean) => {
+    const id = await getOrSetRandomId();
+
+    setIsVoteLoading(true);
+    setVoteError(null);
+    try {
+      await addVote({
+        accessCodeId: codeId,
+        isUpvote,
+        userId: id,
+      });
+    } catch (error) {
+      setVoteError('Failed to vote. Please try again.');
+    } finally {
+      setIsVoteLoading(false);
+    }
+  };
+
+  const handleRestroomVote = async (isUpvote: boolean) => {
+    const id = await getOrSetRandomId();
+
+    setIsRestroomVoteLoading(true);
+    setRestroomVoteError(null);
+    try {
+      await voteRestroom({
+        restroomId: selectedHajzlId!,
+        isUpvote,
+        userId: id,
+      });
+    } catch (error) {
+      setRestroomVoteError('Failed to vote. Please try again.');
+    } finally {
+      setIsRestroomVoteLoading(false);
+    }
+  };
+
+  const handleReport = async () => {
+    const id = await getOrSetRandomId();
+
+    setIsReporting(true);
+    setReportError(null);
+    try {
+      await reportRestroom({
+        restroomId: selectedHajzlId!,
+        reason: reportReason || undefined,
+        userId: id,
+      });
+      setReportSuccess(true);
+      setReportReason('');
+      setShowReportForm(false);
+      setTimeout(() => setReportSuccess(false), 3000);
+    } catch (error) {
+      setReportError('Failed to report. Please try again.');
+    } finally {
+      setIsReporting(false);
+    }
+  };
 
   const hajzle = useQuery(api.hajzl.list);
   return (
@@ -70,7 +147,11 @@ export default function Home() {
             onPress={() => {
               getCurrentLocation();
             }}>
-            <Octicons name="location" size={24} color="white" />
+            {isLocationLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Octicons name="location" size={24} color="white" />
+            )}
           </TouchableOpacity>
           <MapComponent
             handlePresentModalPress={(id: Id<'hajzle'>) => handlePresentModalPress(id)}
@@ -85,7 +166,19 @@ export default function Home() {
             enableDynamicSizing={true}
             animationConfigs={animationConfigs}>
             <BottomSheetView>
-              <BottomSheetContent hajzlId={selectedHajzlId} />
+              <BottomSheetContent
+                hajzlId={selectedHajzlId}
+                isVoteLoading={isVoteLoading}
+                voteError={voteError}
+                isRestroomVoteLoading={isRestroomVoteLoading}
+                restroomVoteError={restroomVoteError}
+                isReporting={isReporting}
+                reportError={reportError}
+                reportSuccess={reportSuccess}
+                handleRestroomVote={handleRestroomVote}
+                handleReport={handleReport}
+                handleCodeVote={handleVote}
+              />
             </BottomSheetView>
           </BottomSheetModal>
         </BottomSheetModalProvider>
@@ -113,7 +206,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 40,
     right: 30,
-    zIndex: 1000,
+    zIndex: 1,
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

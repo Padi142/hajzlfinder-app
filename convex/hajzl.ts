@@ -141,3 +141,19 @@ export const voteRestroom = mutation({
     },
 });
 
+export const report = mutation({
+    args: {
+        restroomId: v.id("hajzle"),
+        reason: v.optional(v.string()),
+        userId: v.string(),
+    },
+    handler: async (ctx, args) => {
+        await ctx.db.insert("reports", {
+            userId: args.userId,
+            restroomId: args.restroomId,
+            reason: args.reason,
+            createdAt: Date.now(),
+        });
+    },
+
+});

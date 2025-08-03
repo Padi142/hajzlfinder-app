@@ -1,19 +1,41 @@
 import { useQuery } from 'convex/react';
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, ScrollView } from 'react-native';
-import { formatTimeAgo } from '~/app/lib/utils';
+import { formatTimeAgo } from '~/lib/utils';
 import { api } from '~/convex/_generated/api';
 import { Doc, Id } from '~/convex/_generated/dataModel';
 
-export const BottomSheetContent = ({ hajzlId }: { hajzlId: Id<'hajzle'> | null }) => {
+export const BottomSheetContent = ({
+  hajzlId,
+  isVoteLoading,
+  voteError,
+  isRestroomVoteLoading,
+  restroomVoteError,
+  isReporting,
+  reportError,
+  reportSuccess,
+  handleRestroomVote,
+  handleReport,
+  handleCodeVote,
+}: {
+  hajzlId: Id<'hajzle'> | null;
+  isVoteLoading: boolean;
+  voteError: string | null;
+  isRestroomVoteLoading: boolean;
+  restroomVoteError: string | null;
+  isReporting: boolean;
+  reportError: string | null;
+  reportSuccess: boolean;
+  handleRestroomVote: (isUpvote: boolean) => void;
+  handleReport: () => void;
+  handleCodeVote: (codeId: Id<'accessCodes'>, isUpvote: boolean) => void;
+}) => {
   if (!hajzlId) return null;
   const hajzl = useQuery(api.hajzl.getRestroom, { id: hajzlId });
   const accessCodes =
     useQuery(api.hajzl.getAccessCodes, {
       restroomId: hajzlId,
     }) || [];
-
-  const [isHajzlVoteLoading, setIsHajzlVoteLoading] = useState(false);
 
   return (
     <View className="min-h-screen-safe-offset-10 max-h-[80vh] gap-4 p-4 pb-6">
@@ -24,8 +46,11 @@ export const BottomSheetContent = ({ hajzlId }: { hajzlId: Id<'hajzle'> | null }
             <View className="flex-row items-center">
               <Text className="mr-2 text-lg font-medium text-gray-700">{hajzl?.upvotes ?? 0}</Text>
               <TouchableOpacity
-                className={`rounded-full p-2 ${isHajzlVoteLoading ? 'opacity-50' : 'active:scale-95'}`}
-                disabled={isHajzlVoteLoading}>
+                className={`rounded-full p-2 ${isRestroomVoteLoading ? 'opacity-50' : 'active:scale-95'}`}
+                onPress={() => {
+                  handleRestroomVote(true);
+                }}
+                disabled={isRestroomVoteLoading}>
                 <Text className="text-2xl">👍</Text>
               </TouchableOpacity>
             </View>
@@ -34,8 +59,9 @@ export const BottomSheetContent = ({ hajzlId }: { hajzlId: Id<'hajzle'> | null }
                 {hajzl?.downvotes ?? 0}
               </Text>
               <TouchableOpacity
-                className={`rounded-full p-2 ${isHajzlVoteLoading ? 'opacity-50' : 'active:scale-95'}`}
-                disabled={isHajzlVoteLoading}>
+                className={`rounded-full p-2 ${isRestroomVoteLoading ? 'opacity-50' : 'active:scale-95'}`}
+                onPress={() => handleRestroomVote(false)}
+                disabled={isRestroomVoteLoading}>
                 <Text className="text-2xl">👎</Text>
               </TouchableOpacity>
             </View>
@@ -85,7 +111,12 @@ export const BottomSheetContent = ({ hajzlId }: { hajzlId: Id<'hajzle'> | null }
                         <Text className="mr-2 text-sm font-medium text-gray-700">
                           {code.upvotes}
                         </Text>
-                        <TouchableOpacity className="rounded p-1">
+                        <TouchableOpacity
+                          className={`rounded p-1 ${isVoteLoading ? 'opacity-50' : 'active:scale-95'}`}
+                          onPress={() => {
+                            handleCodeVote(code._id, true);
+                          }}
+                          disabled={isVoteLoading}>
                           <Text className="text-lg">👍</Text>
                         </TouchableOpacity>
                       </View>
@@ -93,7 +124,10 @@ export const BottomSheetContent = ({ hajzlId }: { hajzlId: Id<'hajzle'> | null }
                         <Text className="mr-2 text-sm font-medium text-gray-700">
                           {code.downvotes}
                         </Text>
-                        <TouchableOpacity className="rounded p-1">
+                        <TouchableOpacity
+                          className={`rounded p-1 ${isVoteLoading ? 'opacity-50' : 'active:scale-95'}`}
+                          onPress={() => handleCodeVote(code._id, false)}
+                          disabled={isVoteLoading}>
                           <Text className="text-lg">👎</Text>
                         </TouchableOpacity>
                       </View>

@@ -1,17 +1,19 @@
-export function getOrSetRandomId(): string {
-    // Generate a random UUID to serve as the random value
-    const randomValue = crypto.randomUUID();
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Crypto from 'expo-crypto';
 
-    const storedMappings = localStorage.getItem('mlem');
+export async function getOrSetRandomId(): Promise<string> {
+    // Generate a random UUID to serve as the random value
+    const storedMappings = await AsyncStorage.getItem('mlem');
     const mappings: Record<string, string> = storedMappings ? JSON.parse(storedMappings) : {};
 
     const existingKey = mappings['mlem'];
     if (existingKey) {
         return existingKey;
     }
+    const randomValue = Crypto.randomUUID();
 
     mappings['mlem'] = randomValue;
-    localStorage.setItem('mlem', JSON.stringify(mappings));
+    await AsyncStorage.setItem('mlem', JSON.stringify(mappings));
 
     return randomValue;
 }

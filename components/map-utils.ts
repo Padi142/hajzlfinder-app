@@ -147,7 +147,7 @@ function addRestroomMarker(
 ) {
     // Create marker element
     const markerElement = document.createElement('div');
-    markerElement.className = `cursor-pointer transition-transform hover:scale-110 ${isSelected ? 'scale-125 z-10' : ''
+    markerElement.className = `cursor-pointer transition-transform hover:scale-110 ${isSelected ? 'scale-125 ' : ''
         }`;
     markerElement.innerHTML = `
       <div class="relative">

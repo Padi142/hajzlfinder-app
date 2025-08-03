@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { Doc, Id } from '~/convex/_generated/dataModel';
 import { ToiletMarker } from './ToiletMarker';
 import * as Location from 'expo-location';
-import { DEFAULT_LOCATION } from '~/app/lib/constants';
+import { DEFAULT_LOCATION } from '~/lib/constants';
 
 export const MapComponentMobile = ({
   handlePresentModalPress,

@@ -2,6 +2,8 @@ import { Platform, View, Text } from 'react-native';
 import { Doc, Id } from '~/convex/_generated/dataModel';
 import { Suspense, lazy } from 'react';
 import * as Location from 'expo-location';
+import { api } from '~/convex/_generated/api';
+import { useMutation } from 'convex/react';
 
 // Dynamically import both components to avoid issues
 const MapComponentWeb = lazy(() =>

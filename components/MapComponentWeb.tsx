@@ -13,7 +13,7 @@ import {
 } from './map-utils';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import * as Location from 'expo-location';
-import { DEFAULT_LOCATION } from '~/app/lib/constants';
+import { DEFAULT_LOCATION } from '~/lib/constants';
 
 export const MapComponentWeb = ({
   handlePresentModalPress,
