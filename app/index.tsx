@@ -30,6 +30,7 @@ export default function Home() {
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [selectedHajzlId, setSelectedHajzlId] = useState<Id<'hajzle'> | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const addVote = useMutation(api.hajzl.vote);
   const voteRestroom = useMutation(api.hajzl.voteRestroom);
@@ -53,10 +54,14 @@ export default function Home() {
   });
   const handlePresentModalPress = useCallback((hajzlId: Id<'hajzle'>) => {
     setSelectedHajzlId(hajzlId);
+    setIsModalOpen(true);
     bottomSheetModalRef.current?.present();
   }, []);
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
+    if (index === -1) {
+      setIsModalOpen(false);
+    }
   }, []);
 
   const getCurrentLocation = useCallback(async () => {
@@ -140,26 +145,30 @@ export default function Home() {
   return (
     <>
       <GestureHandlerRootView style={styles.container}>
+        <Stack.Screen options={{ title: 'Hajzlfinder Mobile' }} />
+        {!isModalOpen && (
+          <>
+            <TouchableOpacity
+              style={styles.floatingButton}
+              onPress={() => {
+                getCurrentLocation();
+              }}>
+              {isLocationLoading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Octicons name="location" size={24} color="white" />
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.settingsButton}
+              onPress={() => {
+                router.push('/settings');
+              }}>
+              <Octicons name="gear" size={24} color="#000" />
+            </TouchableOpacity>
+          </>
+        )}
         <BottomSheetModalProvider>
-          <Stack.Screen options={{ title: 'Hajzlfinder Mobile' }} />
-          <TouchableOpacity
-            style={styles.floatingButton}
-            onPress={() => {
-              getCurrentLocation();
-            }}>
-            {isLocationLoading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Octicons name="location" size={24} color="white" />
-            )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.settingsButton}
-            onPress={() => {
-              router.push('/settings');
-            }}>
-            <Octicons name="gear" size={24} color="#000" />
-          </TouchableOpacity>
           <MapComponent
             handlePresentModalPress={(id: Id<'hajzle'>) => handlePresentModalPress(id)}
             hajzle={hajzle ?? []}
@@ -228,10 +237,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    top: 60,
-    right: 30,
     zIndex: 1,
     elevation: 5,
+    top: 60,
+    right: 30,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,

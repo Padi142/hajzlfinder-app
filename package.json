@@ -33,6 +33,7 @@
     "expo-router": "~5.1.4",
     "expo-status-bar": "~2.2.3",
     "expo-system-ui": "~5.0.6",
+    "expo-updates": "~0.28.17",
     "expo-web-browser": "~14.2.0",
     "maplibre-gl": "^5.6.1",
     "nativewind": "latest",

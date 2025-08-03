@@ -87,7 +87,7 @@ export const BottomSheetContent = ({
       {(hajzl?.type === 'code' || !hajzl?.type) && (
         <View className="">
           <Text className="mb-3 text-lg font-semibold text-gray-900">Přidané kódy</Text>
-          <View className="max-h-full min-h-[120px]">
+          <View className="max-h-[300px] ">
             {accessCodes.length > 0 ? (
               <ScrollView
                 showsVerticalScrollIndicator={true}
