@@ -2,7 +2,7 @@ import '../global.css';
 
 import { Stack } from 'expo-router';
 
-import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { ConvexProvider, ConvexReactClient } from 'convex/react';
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
@@ -11,8 +11,8 @@ const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
 export default function RootLayout() {
   return (
     <ConvexProvider client={convex}>
-      <Stack>
-        <Stack.Screen name="index" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Hajzle" />
       </Stack>
     </ConvexProvider>
   );

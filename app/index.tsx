@@ -1,4 +1,4 @@
-import { Stack, Link } from 'expo-router';
+import { Stack, Link, router } from 'expo-router';
 
 import { Button } from '~/components/Button';
 import { Container } from '~/components/Container';
@@ -153,6 +153,13 @@ export default function Home() {
               <Octicons name="location" size={24} color="white" />
             )}
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.settingsButton}
+            onPress={() => {
+              router.push('/settings');
+            }}>
+            <Octicons name="gear" size={24} color="#000" />
+          </TouchableOpacity>
           <MapComponent
             handlePresentModalPress={(id: Id<'hajzle'>) => handlePresentModalPress(id)}
             hajzle={hajzle ?? []}
@@ -205,6 +212,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'absolute',
     bottom: 40,
+    right: 30,
+    zIndex: 1,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  settingsButton: {
+    backgroundColor: '#FFF',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: 60,
     right: 30,
     zIndex: 1,
     elevation: 5,
